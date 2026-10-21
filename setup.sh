@@ -38,7 +38,7 @@ apt-get update
 
 echo "==> Обновление установленных пакетов..."
 export DEBIAN_FRONTEND=noninteractive
-apt-get upgrade -y
+apt-get full-upgrade -y
 
 echo "==> Установка утилит..."
 apt-get install -y htop nload vim traceroute
