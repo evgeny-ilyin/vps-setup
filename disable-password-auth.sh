@@ -83,7 +83,7 @@ EFFECTIVE="$(sshd -T)"
 if ! grep -qx 'pubkeyauthentication yes' <<< "$EFFECTIVE" ||
 	! grep -qx 'passwordauthentication no' <<< "$EFFECTIVE" ||
 	! grep -qx 'kbdinteractiveauthentication no' <<< "$EFFECTIVE" ||
-	! grep -qx 'permitrootlogin prohibit-password' <<< "$EFFECTIVE"; then
+	! grep -Eq '^permitrootlogin (prohibit-password|without-password)$' <<< "$EFFECTIVE"; then
 	echo "Ошибка: эффективные настройки не соответствуют ожидаемым."
 	echo "Резервная копия sshd_config: $BACKUP"
 	echo "Проверь настройки вручную:"
