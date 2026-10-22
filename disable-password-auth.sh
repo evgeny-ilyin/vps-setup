@@ -20,25 +20,18 @@ DROPIN_DIR="/etc/ssh/sshd_config.d"
 BACKUP="${CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
 
 # Убедиться, что SSH разрешает вход по ключу до изменений.
-# if ! sshd -T 2>/dev/null | grep -qx 'pubkeyauthentication yes'; then
-# 	echo "Ошибка: SSH-аутентификация по ключу сейчас не включена."
-# 	echo "Сначала настрой и проверь вход по ключу."
-# 	exit 1
-# fi
-
-# Убедиться, что SSH разрешает вход по ключу до изменений.
 if ! SSH_CONFIG="$(sshd -T 2>&1)"; then
-    echo "Ошибка: не удалось проверить конфигурацию SSH:"
-    echo "$SSH_CONFIG"
-    exit 1
+	echo "Ошибка: не удалось проверить конфигурацию SSH:"
+	echo "$SSH_CONFIG"
+	exit 1
 fi
 
 if ! grep -qx 'pubkeyauthentication yes' <<< "$SSH_CONFIG"; then
-    echo "Ошибка: SSH-аутентификация по ключу сейчас не включена."
-    echo "Текущее значение:"
-    grep '^pubkeyauthentication ' <<< "$SSH_CONFIG" || echo "Параметр не найден"
-    echo "Сначала проверь настройки SSH."
-    exit 1
+	echo "Ошибка: SSH-аутентификация по ключу сейчас не включена."
+	echo "Текущее значение:"
+	grep '^pubkeyauthentication ' <<< "$SSH_CONFIG" || echo "Параметр не найден"
+	echo "Сначала настрой и проверь вход по ключу."
+	exit 1
 fi
 
 cp -a "$CONFIG" "$BACKUP"
@@ -78,21 +71,6 @@ if ! sshd -t; then
 fi
 
 # Проверить фактические настройки с учётом Include.
-# EFFECTIVE="$(sshd -T)"
-
-# if ! grep -qx 'pubkeyauthentication yes' <<< "$EFFECTIVE" ||
-# 	! grep -qx 'passwordauthentication no' <<< "$EFFECTIVE" ||
-# 	! grep -qx 'kbdinteractiveauthentication no' <<< "$EFFECTIVE" ||
-# 	! grep -Eq '^permitrootlogin (prohibit-password|without-password)$' <<< "$EFFECTIVE"; then
-# 	echo "Ошибка: эффективные настройки не соответствуют ожидаемым."
-# 	echo "Резервная копия sshd_config: $BACKUP"
-# 	echo "Проверь настройки вручную:"
-# 	sshd -T | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication)'
-# 	exit 1
-# fi
-
-
-# Проверить фактические настройки с учётом Include.
 EFFECTIVE="$(sshd -T)"
 
 check_setting() {
@@ -106,14 +84,14 @@ check_setting() {
 	fi
 }
 
-if ! check_setting pubkeyauthentication yes ||
-	! check_setting passwordauthentication no ||
-	! check_setting kbdinteractiveauthentication no ||
-	! check_setting permitrootlogin 'prohibit-password|without-password'; then
-	echo "Эффективные настройки SSH:"
-	grep -E '^(pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|permitrootlogin) ' <<< "$EFFECTIVE"
-	echo "Резервная копия sshd_config: $BACKUP"
-	exit 1
+if 	! check_setting pubkeyauthentication yes ||
+		! check_setting passwordauthentication no ||
+		! check_setting kbdinteractiveauthentication no ||
+		! check_setting permitrootlogin 'prohibit-password|without-password'; then
+			echo "Эффективные настройки SSH:"
+			grep -E '^(pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|permitrootlogin) ' <<< "$EFFECTIVE"
+			echo "Резервная копия sshd_config: $BACKUP"
+			exit 1
 fi
 
 echo "Проверка эффективных настроек SSH пройдена."
