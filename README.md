@@ -112,7 +112,7 @@ sshd -T | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication
 Ожидаемый результат:
 
 ```text
-permitrootlogin prohibit-password
+permitrootlogin prohibit-password или without-password
 pubkeyauthentication yes
 passwordauthentication no
 kbdinteractiveauthentication no
