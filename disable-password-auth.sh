@@ -20,10 +20,25 @@ DROPIN_DIR="/etc/ssh/sshd_config.d"
 BACKUP="${CONFIG}.backup.$(date +%Y%m%d-%H%M%S)"
 
 # Убедиться, что SSH разрешает вход по ключу до изменений.
-if ! sshd -T 2>/dev/null | grep -qx 'pubkeyauthentication yes'; then
-	echo "Ошибка: SSH-аутентификация по ключу сейчас не включена."
-	echo "Сначала настрой и проверь вход по ключу."
-	exit 1
+# if ! sshd -T 2>/dev/null | grep -qx 'pubkeyauthentication yes'; then
+# 	echo "Ошибка: SSH-аутентификация по ключу сейчас не включена."
+# 	echo "Сначала настрой и проверь вход по ключу."
+# 	exit 1
+# fi
+
+# Убедиться, что SSH разрешает вход по ключу до изменений.
+if ! SSH_CONFIG="$(sshd -T 2>&1)"; then
+    echo "Ошибка: не удалось проверить конфигурацию SSH:"
+    echo "$SSH_CONFIG"
+    exit 1
+fi
+
+if ! grep -qx 'pubkeyauthentication yes' <<< "$SSH_CONFIG"; then
+    echo "Ошибка: SSH-аутентификация по ключу сейчас не включена."
+    echo "Текущее значение:"
+    grep '^pubkeyauthentication ' <<< "$SSH_CONFIG" || echo "Параметр не найден"
+    echo "Сначала проверь настройки SSH."
+    exit 1
 fi
 
 cp -a "$CONFIG" "$BACKUP"
