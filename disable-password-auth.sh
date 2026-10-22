@@ -78,18 +78,45 @@ if ! sshd -t; then
 fi
 
 # Проверить фактические настройки с учётом Include.
+# EFFECTIVE="$(sshd -T)"
+
+# if ! grep -qx 'pubkeyauthentication yes' <<< "$EFFECTIVE" ||
+# 	! grep -qx 'passwordauthentication no' <<< "$EFFECTIVE" ||
+# 	! grep -qx 'kbdinteractiveauthentication no' <<< "$EFFECTIVE" ||
+# 	! grep -Eq '^permitrootlogin (prohibit-password|without-password)$' <<< "$EFFECTIVE"; then
+# 	echo "Ошибка: эффективные настройки не соответствуют ожидаемым."
+# 	echo "Резервная копия sshd_config: $BACKUP"
+# 	echo "Проверь настройки вручную:"
+# 	sshd -T | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication)'
+# 	exit 1
+# fi
+
+
+# Проверить фактические настройки с учётом Include.
 EFFECTIVE="$(sshd -T)"
 
-if ! grep -qx 'pubkeyauthentication yes' <<< "$EFFECTIVE" ||
-	! grep -qx 'passwordauthentication no' <<< "$EFFECTIVE" ||
-	! grep -qx 'kbdinteractiveauthentication no' <<< "$EFFECTIVE" ||
-	! grep -Eq '^permitrootlogin (prohibit-password|without-password)$' <<< "$EFFECTIVE"; then
-	echo "Ошибка: эффективные настройки не соответствуют ожидаемым."
+check_setting() {
+	local setting="$1"
+	local expected="$2"
+
+	if ! grep -Eq "^${setting}[[:space:]]+(${expected})$" <<< "$EFFECTIVE"; then
+		echo "Ошибка: настройка $setting имеет неожиданное значение."
+		grep -E "^${setting}[[:space:]]" <<< "$EFFECTIVE" || true
+		return 1
+	fi
+}
+
+if ! check_setting pubkeyauthentication yes ||
+	! check_setting passwordauthentication no ||
+	! check_setting kbdinteractiveauthentication no ||
+	! check_setting permitrootlogin 'prohibit-password|without-password'; then
+	echo "Эффективные настройки SSH:"
+	grep -E '^(pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|permitrootlogin) ' <<< "$EFFECTIVE"
 	echo "Резервная копия sshd_config: $BACKUP"
-	echo "Проверь настройки вручную:"
-	sshd -T | grep -E '^(permitrootlogin|pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication)'
 	exit 1
 fi
+
+echo "Проверка эффективных настроек SSH пройдена."
 
 # Применить конфигурацию без принудительного разрыва активных сессий.
 if systemctl reload ssh; then
