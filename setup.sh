@@ -40,11 +40,11 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get full-upgrade -y
 
 echo "==> Установка утилит..."
-apt-get install -y htop nload vim traceroute
+apt-get install -y unzip htop nload vim traceroute
 
 echo
 echo "==> Проверка установки..."
-for cmd in htop nload vim traceroute; do
+for cmd in unzip htop nload vim traceroute; do
 	if command -v "$cmd" >/dev/null 2>&1; then
 		printf 'OK: %s\n' "$cmd"
 	else

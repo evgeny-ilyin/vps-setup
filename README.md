@@ -106,7 +106,7 @@ wget -q https://raw.githubusercontent.com/evgeny-ilyin/vps-setup/main/setup.sh -
 
 - обновление списка пакетов (`apt-get update`);
 - обновление установленных пакетов (`apt-get upgrade`);
-- установку утилит `htop`, `nload`, `vim`, `traceroute`.
+- установку утилит `unzip`, `htop`, `nload`, `vim`, `traceroute`.
 
 Скрипт не меняет настройки SSH и не отключает вход по паролю.
 
