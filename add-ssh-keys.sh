@@ -3,6 +3,7 @@
 KEYS=(
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ1t/XwPrdm1w6D7EZB4jCeu7JIyaN9N8Q0LgE3Da/8a evgeny@NZXT"
 	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOa31Rjyhho74iZPeNzKG2TsphSyD4I+KCoc2DCoiysw evgeny@MacBook-Air-Evgeny.local"
+	"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMqUPOI6eT/ymx8gLMtpGswMp2u2Mxse4w2t1oNq4lDV rr"
 )
 
 SSH_DIR="/root/.ssh"
